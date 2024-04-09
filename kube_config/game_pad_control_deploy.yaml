@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Pod
+items:
+
+# Pod for 'driver' on 192.168.178.50 (for wifi in room 057)
+# Pod for 'driver' on 192.168.1.101 (for wifi in room 023)
+
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    name: driver
+    labels:
+      app: driver
+  spec:
+    hostNetwork: true
+    nodeSelector:
+      node: "OrangePi"
+    containers:
+    - name: driver
+      image: 131.159.61.158:5000/car_driver_local_opi_with_time:lsx
+      securityContext:
+        privileged: true
+
+# Pod for 'controller' on 192.168.178.49 (for wifi in room 057)
+# Pod for 'controller' on 192.168.1.101 (for wifi in room 023)
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    name: controller
+    labels:
+      app: controller
+  spec:
+    hostNetwork: true
+    nodeSelector:
+      node: "OrangePi"
+    containers:
+    - name: controller
+      image: 131.159.61.158:5000/controller_with_time:lsx
+      securityContext:
+        privileged: true
+
+# Pod for 'mux' on 192.168.1.101 (for wifi in room 023)
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    name: mux
+    labels:
+      app: mux
+  spec:
+    hostNetwork: true
+    nodeSelector:
+      node: "OrangePi"
+    containers:
+    - name: mux
+      image: 131.159.61.158:5000/mux_with_time:lsx
+      securityContext:
+        privileged: true
