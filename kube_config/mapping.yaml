@@ -55,3 +55,52 @@ items:
       image: 131.159.61.158:5000/mux_with_time:lsx
       securityContext:
         privileged: true
+
+
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    name: sensor
+    labels:
+      app: sensor
+  spec:
+    hostNetwork: true
+    nodeSelector:
+      node: "OrangePi"
+    containers:
+    - name: mux
+      image: 131.159.61.158:5000/imu_lidar:lsx
+      securityContext:
+        privileged: true
+
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    name: lidar-odometry
+    labels:
+      app: lidar-odometry
+  spec:
+    hostNetwork: true
+    nodeSelector:
+      node: "Computer"
+    containers:
+    - name: mux
+      image: 131.159.61.158:5000/lidar_odom:lsx
+      securityContext:
+        privileged: false
+
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    name: slam-toolbox
+    labels:
+      app: slam-toolbox
+  spec:
+    hostNetwork: true
+    nodeSelector:
+      node: "Computer"
+    containers:
+    - name: mux
+      image: 131.159.61.158:5000/car_slam:lsx
+      securityContext:
+        privileged: false

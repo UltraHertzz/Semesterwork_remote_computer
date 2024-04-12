@@ -14,6 +14,9 @@ def generate_launch_description():
     set_domain = SetEnvironmentVariable('ROS_DOMAIN_ID', '30')
     config_file_arg = DeclareLaunchArgument('params_file', 
                                             default_value='/home/fantasyyeah/ros2_ws/src/slam_toolbox/online_async_mapping.yaml')
+    slam_dir = get_package_share_directory('car_slam')
+    rviz_config_dir = os.path.join(slam_dir,'param','slam_toolbox_default.rviz')
+
     data_sync_py_launch = Node(
         package='sensor_sync_py',
         executable='sensor_sync_node_py',
@@ -38,6 +41,13 @@ def generate_launch_description():
         launch_arguments={'params_file' : 
                           LaunchConfiguration('params_file')}.items(),
     )
+    rviz_node =  Node(
+            package='rviz2',
+            executable='rviz2',
+            name='rviz2',
+            arguments=['-d', rviz_config_dir],
+            output='screen')
+
 
     return LaunchDescription([
         set_domain,
@@ -45,5 +55,6 @@ def generate_launch_description():
         lidar_odom_launch,
         #data_sync_launch,
         #data_sync_py_launch,
-        slam_toolbox_launch
+        slam_toolbox_launch,
+        rviz_node
     ])
