@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+items:
+
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    name: lidar-odometry
+    labels:
+      app: lidar-odometry
+  spec:
+    hostNetwork: false
+    nodeSelector:
+      node: "Computer"
+    containers:
+    - name: mux
+      image: 131.159.61.158:5000/lidar_odom:lsx
+      securityContext:
+        privileged: false

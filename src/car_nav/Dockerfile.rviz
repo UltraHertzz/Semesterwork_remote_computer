@@ -1,0 +1,30 @@
+FROM ros:humble-ros-base-jammy
+ENV ROS_WS=/root/ros_ws
+ENV DISPLAY=:0
+WORKDIR $ROS_WS
+COPY ./ src/car_nav
+RUN bash -c "apt update && \
+             apt install -y \
+                libx11-xcb1 \
+                libxcb-icccm4 \
+                libxcb-image0 \
+                libxcb-keysyms1 \
+                libxcb-randr0 \
+                libxcb-render-util0 \
+                libxcb-xinerama0 \
+                libxcb-xkb1 \
+                libxkbcommon-x11-0 \
+                libqt5x11extras5 \
+                qtbase5-dev \
+                libxcb-xinerama0-dev \
+                ros-humble-nav2-bringup \
+                ros-humble-navigation2 \
+                ros-humble-rviz2  && \
+    rm -rf /var/lib/apt/lists/* && \
+    source /opt/ros/humble/setup.bash && \
+    cd $ROS_WS && colcon build"
+
+CMD [ "/bin/bash" ,"-c", "source /opt/ros/humble/setup.bash && \
+                          source ${ROS_WS}/install/setup.bash && \
+                          export ROS_DOMAIN_ID=30 && \
+                          ros2 launch car_nav navigation_in_docker.launch.py params:=${ROS_WS}/src/car_nav/params/car_nav2.yaml" ]

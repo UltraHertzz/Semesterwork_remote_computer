@@ -1,7 +1,4 @@
 import time
-import sys
-import tty
-import termios
 import rclpy
 from pynput import keyboard
 from rclpy.node import Node
@@ -99,6 +96,8 @@ class ControlPublisher(Node):
                 self.mode = 'j'
             case 'k': # key board control
                 self.mode = 'k'
+            case 'l':
+                self.mode = 'l'
 
 
         con_msg.data = self.control_val
