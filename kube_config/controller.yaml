@@ -16,7 +16,8 @@ items:
         node: "OrangePi"
       containers:
       - name: driver
-        image: 131.159.61.158:5000/car_driver_with_time:lsx
+        # image: 131.159.61.158:5000/car_driver_with_time:lsx
+        image: 131.159.61.158:5000/car_driver_diff_con:lsx
         imagePullPolicy: Always
         securityContext:
           privileged: true

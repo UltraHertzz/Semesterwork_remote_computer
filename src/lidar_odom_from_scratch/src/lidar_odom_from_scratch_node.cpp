@@ -28,11 +28,14 @@ struct by_value
 LaserOdomNode::LaserOdomNode() : Node("laser_odom_node")
                   
 {
+  auto start = this->now();
   RCLCPP_INFO(this->get_logger(), "LaserScan initial.");
   // 订阅雷达数据
   laser_scan_subscriber_ = this->create_subscription<sensor_msgs::msg::LaserScan>(
     "/scan", rclcpp::SensorDataQoS(), std::bind(&LaserOdomNode::scanCallback, this, std::placeholders::_1));
   // 发布雷达数据
+//   imu_subscriber_ = this->create_subscription<sensor_msgs::msg::Imu>(
+    // "/bno055/imu", rclcpp::SensorDataQoS(), std::bind(&LaserOdomNode::imuCallback, this, std::placeholders::_1));
   feature_scan_publisher_ = this->create_publisher<sensor_msgs::msg::LaserScan>("/feature_scan", 1);
   odom_publisher_ = this->create_publisher<nav_msgs::msg::Odometry>("/odom", rclcpp::SystemDefaultsQoS());
   point_cloud_publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("/pcd", 1);
@@ -61,6 +64,8 @@ LaserOdomNode::LaserOdomNode() : Node("laser_odom_node")
   tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
   tf_buffer_ = std::make_unique<tf2_ros::Buffer>(this->get_clock());
   tf_listener_ = std::make_unique<tf2_ros::TransformListener>(*tf_buffer_);
+  auto init_end = this->now();
+  RCLCPP_INFO(this->get_logger(), "init time: %f", (init_end - start).seconds());
 } // end of constructor
 
 LaserOdomNode::~LaserOdomNode(){};
@@ -292,6 +297,8 @@ void LaserOdomNode::publishTFAndOdometry()
 
         // 发布 odomemtry 话题
         odom_publisher_->publish(*odom_msg);
+        auto end = this->now();
+        //RCLCPP_INFO(this->get_logger(), "publish time: %f", (end - start).seconds());
     }
     
 void LaserOdomNode::getCornerPoints(const sensor_msgs::msg::LaserScan::SharedPtr scan_msg)
@@ -605,6 +612,7 @@ void LaserOdomNode::scanCallback(const sensor_msgs::msg::LaserScan::SharedPtr sc
         LaserOdomNode::scanMatchWithPLICP(curr_ldp_scan, current_time_);
         end_time_ = std::chrono::steady_clock::now();
         time_used_ = std::chrono::duration_cast<std::chrono::duration<double>>(end_time_ - start_time_);
+        RCLCPP_INFO(this->get_logger(),"PLICP compute cost: %.5f sec", time_used_.count());
         // std::cout << "LaserScanToLDP time: " << time_used_.count() << " seconds." << std::endl;
 
         // Step 2, PLICP
@@ -613,7 +621,9 @@ void LaserOdomNode::scanCallback(const sensor_msgs::msg::LaserScan::SharedPtr sc
 
 int main(int argc, char ** argv)
 {
+
   rclcpp::init(argc, argv);
+
   auto node = std::make_shared<LaserOdomNode>();
   rclcpp::spin(node->get_node_base_interface());
   rclcpp::shutdown();

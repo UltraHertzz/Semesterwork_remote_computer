@@ -20,9 +20,13 @@ items:
     - name: driver
       # image: 131.159.61.158:5000/car_driver_with_time:lsx # image 1: acc and turn sequentially
       image: 131.159.61.158:5000/car_driver_diff_con:lsx # image 2: differential controller, process acc and turn simultaneously
+      # image: 131.159.61.158:5000/
       imagePullPolicy: Always
       securityContext:
         privileged: true
+      volumeMounts:
+        - name: log-volume
+          mountPath: /root/ros2_ws/log/runtime/container
 
     - name: controller
       # image: 131.159.61.158:5000/controller_with_time:lsx #image 1: publish topic at most effort(1000Hz)
@@ -30,6 +34,9 @@ items:
       imagePullPolicy: Always
       securityContext:
         privileged: true
+      volumeMounts:
+        - name: log-volume
+          mountPath: /root/ros2_ws/log/runtime/container
 
     - name: mux
       #image: 131.159.61.158:5000/mux_with_time:lsx #image 1: publish topic with fixed rate
@@ -37,12 +44,24 @@ items:
       imagePullPolicy: Always
       securityContext:
         privileged: true
+      volumeMounts:
+        - name: log-volume
+          mountPath: /root/ros2_ws/log/runtime/container
 
     - name: sensor
       image: 131.159.61.158:5000/imu_lidar:lsx
       imagePullPolicy: Always
       securityContext:
         privileged: true
+      volumeMounts:
+        - name: log-volume
+          mountPath: /root/ros2_ws/log/runtime/container
+    
+    volumes:
+      - name: log-volume
+        hostPath:
+          path: /home/fantasyyeah/ros2_ws/log/runtime/container 
+          type: DirectoryOrCreate
 
 - apiVersion: v1
   kind: Pod
@@ -57,10 +76,14 @@ items:
     containers:
 
     - name: odometry
-      image: 131.159.61.158:5000/lidar_odom:lsx
+      image: 131.159.61.158:5000/lidar_odom:lsx # image 1: without log file
+      # image: 131.159.61.158:5000/lidar_odom:exp # image 2: preserve log file in volume
       imagePullPolicy: Always
       securityContext:
         privileged: false
+      volumeMounts:
+        - name: log-volume
+          mountPath: /root/ros2_ws/log/runtime/container
 
     # nav2 without rviz2
     # - name: nav2stack
@@ -72,6 +95,7 @@ items:
     # nav2 with rviz2
     - name: nav2stack
       image: 131.159.61.158:5000/car_nav_rviz2:lsx #image 2: navigation stack with visulization
+      # image: 131.159.61.158:5000/car_nav_rviz2:exp #image 2.2: navigation stack with visulization, preserve log file in volume
       imagePullPolicy: Always
       securityContext:
         privileged: false
@@ -81,10 +105,17 @@ items:
       volumeMounts:
         - name: x11-socket
           mountPath: /tmp/.X11-unix
+        - name: log-volume
+          mountPath: /root/ros2_ws/log/runtime/container
+
     volumes:
       - name: x11-socket
         hostPath:
           path: /tmp/.X11-unix
+      - name: log-volume
+        hostPath:
+          path: /home/fantasyyeah/ros2_ws/log/runtime/container 
+          type: DirectoryOrCreate
 
 
 
