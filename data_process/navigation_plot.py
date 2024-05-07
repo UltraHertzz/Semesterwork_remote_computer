@@ -13,7 +13,7 @@ def parse_log_file(log_file_path):
         content = file.readlines()
     
     for i, line in enumerate(content):
-        if 'Total CPU used by ROS2 processes:' in line:
+        if 'Total CPU used ' in line:
             try:
 
                 cpu_usage = float(line.split(':')[1].strip().strip('%')) 
@@ -25,8 +25,8 @@ def parse_log_file(log_file_path):
                 mem_usage = 0 
             try:
                 timestamp = float(content[i+3].split(':')[0].strip())
-            except ValueError as e:
-                print(f"Warning: Unable to parse timestamp from line {i}: {time_str}")
+            except ValueError:
+                timestamp = 0
             if not first_time:
                 first_time = timestamp
             seconds_since_start = (timestamp - first_time)
@@ -58,7 +58,7 @@ def plot_data(timestamps, cpu_usages, mem_usages):
     plt.show()
 
 if __name__ == '__main__':
-    log_file_path = '/home/fantasyyeah/Semesterwork/memory.log'
+    log_file_path = '/home/fantasyyeah/Semesterwork/memory_k3s.log'
     timestamps, cpu_usages, mem_usages = parse_log_file(log_file_path)
     print(f"CPU: \n\tavg:{sum(cpu_usages)/len(cpu_usages)}\n\tmax:{max(cpu_usages)}\n\tstd:{sum([(x - sum(cpu_usages)/len(cpu_usages)) ** 2 for x in cpu_usages]) / len(cpu_usages)}")
     print(f"Memory: \n\tavg:{sum(mem_usages)/len(mem_usages)}\n\tmax:{max(mem_usages)}\n\tstd:{sum([(x - sum(mem_usages)/len(mem_usages)) ** 2 for x in mem_usages]) / len(mem_usages)}")
